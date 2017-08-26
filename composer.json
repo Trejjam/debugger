@@ -1,0 +1,37 @@
+{
+	"name": "trejjam/debugger",
+	"description": "Tracy logger extension",
+	"keywords": [
+		"tracy",
+		"logger"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Jan Trejbal"
+		}
+	],
+	"support": {
+		"email": "jan.trejbal@gmail.com",
+		"issues": "https://github.com/Trejjam/Utils/issues"
+	},
+	"require": {
+		"php": ">=7.0",
+
+		"nette/di": "~2.4",
+		"trejjam/base-extension": "~0.5"
+	},
+	"require-dev": {
+		"nette/tester": "@dev"
+	},
+	"autoload": {
+		"psr-4": {
+			"Trejjam\\Debugger\\": "src/"
+		}
+	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "v0.1.x-dev"
+		}
+	}
+}
