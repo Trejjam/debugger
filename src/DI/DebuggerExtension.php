@@ -9,26 +9,41 @@ use Trejjam;
 class DebuggerExtension extends Nette\DI\CompilerExtension
 {
 	protected $default = [
-		'logger'           => [
-			'mailService' => '@Nette\Mail\IMailer',
-			'snoze'       => '1 day',
-			'host'        => NULL, //NULL mean auto
-			'path'        => '/log/',
-		],
+		'logger'           => [],
+		'storeAllError'    => FALSE,
 		'exceptionStorage' => NULL,
-		'blob'             => [
-			'client' => NULL,
-			'prefix' => NULL,
-		],
+		'blob'             => [],
 	];
 
-	protected function createConfig()
+	protected $defaultLogger = [
+		'mailService' => '@Nette\Mail\IMailer',
+		'snoze'       => '1 day',
+		'host'        => NULL, //NULL mean auto
+		'path'        => '/log/',
+	];
+
+	protected $defaultBlob = [
+		'client' => NULL,
+		'prefix' => NULL,
+	];
+
+	protected $config_cache = NULL;
+
+	protected function createConfig() : array
 	{
-		$this->config += $this->getContainerBuilder()->expand($this->default);
+		if ( !is_null($this->config_cache)) {
+			return $this->config_cache;
+		}
 
-		Nette\Utils\Validators::assert($this->config, 'array');
+		$config = Nette\DI\Config\Helpers::merge($this->config, $this->default);
+		$config['logger'] = Nette\DI\Config\Helpers::merge($config['logger'], $this->defaultLogger);
+		$config['blob'] = Nette\DI\Config\Helpers::merge($config['blob'], $this->defaultBlob);
 
-		return $this->config;
+		Nette\Utils\Validators::assert($config, 'array');
+
+		$this->config_cache = $config;
+
+		return $config;
 	}
 
 	public function loadConfiguration()
@@ -52,7 +67,8 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		$blueScreen->setFactory([
 									Trejjam\Debugger\Debugger::class,
 									'getBlueScreen',
-								]);
+								])
+				   ->addSetup('setStoreError', [$config['storeAllError']]);
 
 		if ( !is_null($config['exceptionStorage'])) {
 			if ($config['exceptionStorage'] === 'azure') {

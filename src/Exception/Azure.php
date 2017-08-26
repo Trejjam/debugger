@@ -16,25 +16,19 @@ class Azure implements IStorage
 	/**
 	 * @var string
 	 */
-	protected $containerName;
-	/**
-	 * @var string
-	 */
 	public $blobPrefix;
 
 	public function __construct(
 		MicrosoftAzure\Storage\Blob\Internal\IBlob $blobClient,
-		string $containerName,
 		string $blobPrefix
 	) {
 		$this->blobClient = $blobClient;
-		$this->containerName = $containerName;
 		$this->blobPrefix = $blobPrefix;
 	}
 
 	public function persist(string $localFile) : bool
 	{
-		$containerName = $this->getContainerPrefix() . $this->containerName . '-' . IStorage::TYPE_LOG;
+		$containerName = $this->getContainerPrefix() . IStorage::TYPE_LOG;
 
 		$this->createContainerIfNotExist($containerName);
 
