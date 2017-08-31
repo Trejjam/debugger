@@ -28,7 +28,7 @@ class Azure implements IStorage
 
 	public function persist(string $localFile) : bool
 	{
-		$containerName = $this->getContainerPrefix() . IStorage::TYPE_LOG;
+		$containerName = $this->getContainerName();
 
 		$this->createContainerIfNotExist($containerName);
 
@@ -57,7 +57,7 @@ class Azure implements IStorage
 	/**
 	 * @param $containerName
 	 */
-	public function createContainerIfNotExist(string $containerName)
+	protected function createContainerIfNotExist(string $containerName)
 	{
 		$options = new MicrosoftAzure\Storage\Blob\Models\ListContainersOptions;
 		$options->setPrefix($containerName);
@@ -81,6 +81,14 @@ class Azure implements IStorage
 			->then(NULL, function ($reason) {
 				throw $reason;
 			})->wait();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getContainerName() : string
+	{
+		return $this->getContainerPrefix() . IStorage::TYPE_LOG;
 	}
 
 	private function getContainerPrefix() : string

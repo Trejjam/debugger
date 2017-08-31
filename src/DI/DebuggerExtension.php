@@ -23,8 +23,9 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 	];
 
 	protected $defaultBlob = [
-		'client' => NULL,
-		'prefix' => NULL,
+		'client'       => NULL,
+		'prefix'       => NULL,
+		'blobSettings' => NULL,
 	];
 
 	protected $config_cache = NULL;
@@ -63,6 +64,10 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 					->addSetup('setHost', [$config['logger']['host']])
 					->addSetup('setPath', [$config['logger']['path']]);
 
+		if ( !is_null($config['blob']['blobSettings'])) {
+			$tracyLogger->addSetup('setBlobSettings', [$config['blob']['blobSettings']]);
+		}
+
 		$blueScreen = $builder->getDefinition('tracy.blueScreen');
 		$blueScreen->setFactory([
 									Trejjam\Debugger\Debugger::class,
@@ -87,6 +92,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 						->setFactory($config['exceptionStorage']);
 			}
 
+			$tracyLogger->addSetup('setLogStorage', [$this->prefix('@storage')]);
 			$blueScreen->addSetup('setLogStorage', [$this->prefix('@storage')]);
 		}
 	}

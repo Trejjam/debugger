@@ -19,7 +19,15 @@ class Logger extends Tracy\Logger
 	/**
 	 * @var string
 	 */
+	protected $exceptionUrl = NULL;
+	/**
+	 * @var string
+	 */
 	protected $path = '/devLog/';
+	/**
+	 * @var Exception\IStorage
+	 */
+	protected $storage;
 
 	public function __construct($directory, $email = NULL, Tracy\BlueScreen $blueScreen = NULL)
 	{
@@ -41,11 +49,29 @@ class Logger extends Tracy\Logger
 	public function setHost($host)
 	{
 		$this->host = $host;
+		$this->exceptionUrl = $this->exceptionUrl ?: $host;
 	}
 
 	public function setPath($path)
 	{
 		$this->path = $path;
+	}
+
+	public function setBlobSettings(Azure\Settings $blobSettings)
+	{
+		$this->exceptionUrl = $blobSettings->getBlobEndpointUri();
+	}
+
+	/**
+	 * @param Exception\IStorage|NULL $storage
+	 */
+	public function setLogStorage(Exception\IStorage $storage = NULL)
+	{
+		$this->storage = $storage;
+
+		if ($this->storage instanceof Exception\Azure) {
+			$this->path = $this->storage->getContainerName();
+		}
 	}
 
 	/**
@@ -151,9 +177,11 @@ class Logger extends Tracy\Logger
 	{
 		if ( !is_null($this->host)) {
 			$host = $this->host;
+			$exceptionUrl = $this->exceptionUrl;
 		}
 		else {
 			$host = preg_replace('#[^\w.-]+#', '', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : php_uname('n'));
+			$exceptionUrl = $host;
 		}
 
 		try {
@@ -183,7 +211,7 @@ class Logger extends Tracy\Logger
 						  (is_null($exceptionFile)
 							  ? ''
 							  : "\n\nexception link: " . Nette\Utils\Strings::replace($exceptionFile, [
-								  '~^(.*)exception--~' => 'http://' . $host . $this->path . 'exception--',
+								  '~^(.*)exception--~' => 'http://' . $exceptionUrl . $this->path . 'exception--',
 							  ])
 						  ));
 
