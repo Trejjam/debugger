@@ -23,7 +23,7 @@ class Logger extends Tracy\Logger
 	/**
 	 * @var string
 	 */
-	protected $path = '/devLog/';
+	protected $path = '/log/';
 	/**
 	 * @var Exception\IStorage
 	 */
@@ -70,7 +70,7 @@ class Logger extends Tracy\Logger
 		$this->storage = $storage;
 
 		if ($this->storage instanceof Exception\Azure) {
-			$this->path = $this->storage->getContainerName();
+			$this->path = '/' . $this->storage->getContainerName() . '/';
 		}
 	}
 
