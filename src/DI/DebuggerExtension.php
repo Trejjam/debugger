@@ -69,11 +69,12 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		}
 
 		$blueScreen = $builder->getDefinition('tracy.blueScreen');
-		$blueScreen->setFactory([
-									Trejjam\Debugger\Debugger::class,
-									'getBlueScreen',
-								])
-				   ->addSetup('setStoreError', [$config['storeAllError']]);
+		$blueScreen->setFactory(
+			[
+				Trejjam\Debugger\Debugger::class,
+				'getBlueScreen',
+			]
+		)->addSetup('setStoreError', [$config['storeAllError']]);
 
 		if ( !is_null($config['exceptionStorage'])) {
 			if ($config['exceptionStorage'] === 'azure') {
