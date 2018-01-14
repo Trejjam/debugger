@@ -79,7 +79,8 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		if ( !is_null($config['exceptionStorage'])) {
 			if ($config['exceptionStorage'] === 'azure') {
 				$builder->addDefinition($this->prefix('storage'))
-						->setClass(Trejjam\Debugger\Exception\Azure::class)
+						->setFactory(Trejjam\Debugger\Exception\Azure::class)
+						->setType(Trejjam\Debugger\Exception\IStorage::class)
 						->setArguments(
 							[
 								$config['blob']['client'],
