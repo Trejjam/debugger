@@ -28,26 +28,17 @@ final class Settings
 		$this->blobSecondaryEndpointUri = $blobSecondaryEndpointUri;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName() : string
 	{
 		return $this->name;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getBlobEndpointUri() : string
 	{
 		return $this->blobEndpointUri;
 	}
 
-	/**
-	 * @return null|string
-	 */
-	public function getBlobSecondaryEndpointUri()
+	public function getBlobSecondaryEndpointUri() : ?string
 	{
 		return $this->blobSecondaryEndpointUri;
 	}

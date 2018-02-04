@@ -17,18 +17,12 @@ class BlueScreen extends Tracy\BlueScreen
 	 */
 	protected $storage;
 
-	/**
-	 * @param bool $storeError
-	 */
-	public function setStoreError(bool $storeError = TRUE)
+	public function setStoreError(bool $storeError = TRUE) : void
 	{
 		$this->storeError = $storeError;
 	}
 
-	/**
-	 * @param Trejjam\Debugger\Exception\IStorage|NULL $storage
-	 */
-	public function setLogStorage(Trejjam\Debugger\Exception\IStorage $storage = NULL)
+	public function setLogStorage(Trejjam\Debugger\Exception\IStorage $storage = NULL) : void
 	{
 		$this->storage = $storage;
 	}
@@ -40,7 +34,7 @@ class BlueScreen extends Tracy\BlueScreen
 	 *
 	 * @return void
 	 */
-	public function render($exception)
+	public function render($exception) : void
 	{
 		if ($this->storeError) {
 			if ($exception instanceof \ErrorException) {
@@ -69,7 +63,7 @@ class BlueScreen extends Tracy\BlueScreen
 	 *
 	 * @return void
 	 */
-	public function renderToFile($exception, $file)
+	public function renderToFile($exception, $file) : void
 	{
 		parent::renderToFile($exception, $file);
 

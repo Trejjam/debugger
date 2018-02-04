@@ -83,9 +83,6 @@ class Azure implements IStorage
 			})->wait();
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getContainerName() : string
 	{
 		return $this->getContainerPrefix() . IStorage::TYPE_LOG;

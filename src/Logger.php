@@ -181,7 +181,7 @@ class Logger extends Tracy\Logger
 		}
 		else {
 			$host = preg_replace('#[^\w.-]+#', '', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : php_uname('n'));
-			$exceptionUrl = $host;
+			$exceptionUrl = 'https://' . $host;
 		}
 
 		try {
@@ -211,7 +211,7 @@ class Logger extends Tracy\Logger
 						  (is_null($exceptionFile)
 							  ? ''
 							  : "\n\nexception link: " . Nette\Utils\Strings::replace($exceptionFile, [
-								  '~^(.*)exception--~' => 'http://' . $exceptionUrl . $this->path . 'exception--',
+								  '~^(.*)exception--~' => $exceptionUrl . $this->path . 'exception--',
 							  ])
 						  ));
 
