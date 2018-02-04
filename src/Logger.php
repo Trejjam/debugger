@@ -23,6 +23,10 @@ class Logger extends Tracy\Logger
 	/**
 	 * @var string
 	 */
+	protected $urlPostfix = NULL;
+	/**
+	 * @var string
+	 */
 	protected $path = '/log/';
 	/**
 	 * @var Exception\IStorage
@@ -60,6 +64,7 @@ class Logger extends Tracy\Logger
 	public function setBlobSettings(Azure\Settings $blobSettings)
 	{
 		$this->exceptionUrl = $blobSettings->getBlobEndpointUri();
+		$this->urlPostfix = $blobSettings->getSharedAccessSignature();
 	}
 
 	/**
@@ -159,7 +164,11 @@ class Logger extends Tracy\Logger
 			$sendMail = TRUE;
 		}
 
-		if ($this->email && $this->mailer && $sendMail) {
+		if (
+			!is_null($this->email)
+			&& is_callable($this->mailer)
+			&& $sendMail
+		) {
 			call_user_func($this->mailer, $message, $this->email, $exceptionFile, $priority);
 		}
 	}
@@ -178,10 +187,12 @@ class Logger extends Tracy\Logger
 		if ( !is_null($this->host)) {
 			$host = $this->host;
 			$exceptionUrl = $this->exceptionUrl;
+			$urlPostfix = $this->urlPostfix;
 		}
 		else {
 			$host = preg_replace('#[^\w.-]+#', '', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : php_uname('n'));
 			$exceptionUrl = 'https://' . $host;
+			$urlPostfix = '';
 		}
 
 		try {
@@ -212,6 +223,7 @@ class Logger extends Tracy\Logger
 							  ? ''
 							  : "\n\nexception link: " . Nette\Utils\Strings::replace($exceptionFile, [
 								  '~^(.*)exception--~' => $exceptionUrl . $this->path . 'exception--',
+								  '~\.html~' => '.html' . $urlPostfix,
 							  ])
 						  ));
 

@@ -14,18 +14,24 @@ final class Settings
 	 */
 	private $blobEndpointUri;
 	/**
-	 * @var null|string
+	 * @var string|null
 	 */
 	private $blobSecondaryEndpointUri;
+	/**
+	 * @var string|null
+	 */
+	private $sharedAccessSignature;
 
 	public function __construct(
 		string $name,
 		string $blobEndpointUri,
-		?string $blobSecondaryEndpointUri
+		?string $blobSecondaryEndpointUri,
+		?string $sharedAccessSignature
 	) {
 		$this->name = $name;
 		$this->blobEndpointUri = $blobEndpointUri;
 		$this->blobSecondaryEndpointUri = $blobSecondaryEndpointUri;
+		$this->sharedAccessSignature = $sharedAccessSignature;
 	}
 
 	public function getName() : string
@@ -41,5 +47,10 @@ final class Settings
 	public function getBlobSecondaryEndpointUri() : ?string
 	{
 		return $this->blobSecondaryEndpointUri;
+	}
+
+	public function getSharedAccessSignature() : ?string
+	{
+		return $this->sharedAccessSignature;
 	}
 }
