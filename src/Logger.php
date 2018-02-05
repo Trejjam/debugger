@@ -33,7 +33,7 @@ class Logger extends Tracy\Logger
 	 */
 	protected $storage;
 
-	public function __construct($directory, $email = NULL, Tracy\BlueScreen $blueScreen = NULL)
+	public function __construct(string $directory, array $email = NULL, Tracy\BlueScreen $blueScreen = NULL)
 	{
 		parent::__construct($directory, $email, $blueScreen);
 
@@ -45,18 +45,18 @@ class Logger extends Tracy\Logger
 		$this->mailerClass = &$mailerClass;
 	}
 
-	public function setEmailSnooze($emailSnooze)
+	public function setEmailSnooze(string $emailSnooze)
 	{
 		$this->emailSnooze = $emailSnooze;
 	}
 
-	public function setHost($host)
+	public function setHost(string $host)
 	{
 		$this->host = $host;
 		$this->exceptionUrl = $this->exceptionUrl ?: $host;
 	}
 
-	public function setPath($path)
+	public function setPath(string $path)
 	{
 		$this->path = $path;
 	}
@@ -182,7 +182,7 @@ class Logger extends Tracy\Logger
 	 *
 	 * @internal
 	 */
-	public function defaultMailer($message, $email, $exceptionFile = NULL, $priority = NULL)
+	public function defaultMailer($message, $email, string $exceptionFile = NULL, string $priority = NULL)
 	{
 		if ( !is_null($this->host)) {
 			$host = $this->host;
@@ -223,7 +223,7 @@ class Logger extends Tracy\Logger
 							  ? ''
 							  : "\n\nexception link: " . Nette\Utils\Strings::replace($exceptionFile, [
 								  '~^(.*)exception--~' => $exceptionUrl . $this->path . 'exception--',
-								  '~\.html~' => '.html' . $urlPostfix,
+								  '~\.html~'           => '.html' . $urlPostfix,
 							  ])
 						  ));
 
@@ -239,7 +239,7 @@ class Logger extends Tracy\Logger
 		$this->mailerClass->send($mail);
 	}
 
-	protected function getTitle($message, $priority)
+	protected function getTitle($message, string $priority)
 	{
 		if ($message instanceof \Exception) {
 			return Tracy\Helpers::getClass($message);

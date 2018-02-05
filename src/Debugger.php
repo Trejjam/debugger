@@ -24,7 +24,7 @@ class Debugger extends Tracy\Debugger
 	/**
 	 * @return Logger|Tracy\ILogger
 	 */
-	public static function getLogger()
+	public static function getLogger() : Tracy\ILogger
 	{
 		if ( !static::$logger) {
 			static::$logger = new Logger(static::$logDirectory, static::$email, static::getBlueScreen());
@@ -37,10 +37,7 @@ class Debugger extends Tracy\Debugger
 		return Tracy\Debugger::getLogger();
 	}
 
-	/**
-	 * @return BlueScreen
-	 */
-	public static function getBlueScreen()
+	public static function getBlueScreen() : Tracy\BlueScreen
 	{
 		if ( !self::$blueScreen || !(parent::getBlueScreen() instanceof BlueScreen)) {
 			if ( !self::$blueScreen) {

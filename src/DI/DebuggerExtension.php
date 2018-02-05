@@ -47,7 +47,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		return $config;
 	}
 
-	public function loadConfiguration()
+	public function loadConfiguration() : void
 	{
 		parent::loadConfiguration();
 

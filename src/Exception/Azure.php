@@ -54,9 +54,6 @@ class Azure implements IStorage
 		return TRUE;
 	}
 
-	/**
-	 * @param $containerName
-	 */
 	protected function createContainerIfNotExist(string $containerName)
 	{
 		$options = new MicrosoftAzure\Storage\Blob\Models\ListContainersOptions;
