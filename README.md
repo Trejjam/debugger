@@ -21,5 +21,16 @@ extensions:
 	trejjam.debugger: Trejjam\Debugger\DI\DebuggerExtension
 
 trejjam.debugger:
+	logger:
+		mailService: @Nette\Mail\IMailer
+		snoze: '1 day'
+		host: NULL #NULL mean auto
+		path: '/log/'
+	storeAllError: FALSE
+	exceptionStorage: NULL #type of Trejjam\Debugger\Exception\IStorage
+	blob:
+		client: NULL #type of MicrosoftAzure\Storage\Blob\Internal\IBlob
+		prefix: NULL #container prefix
+		blobSettings: NULL #type of Trejjam\Debugger\Azure\Settings
 	
 ```
