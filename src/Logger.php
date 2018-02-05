@@ -206,6 +206,10 @@ class Logger extends Tracy\Logger
 
 		@file_put_contents($this->directory . '/email-sent', Nette\Utils\Json::encode($emailSendJson));
 
+		if (count($email) === 0) {
+			return;
+		}
+
 		$mail = new Nette\Mail\Message;
 		$mail
 			->setFrom(
@@ -229,9 +233,10 @@ class Logger extends Tracy\Logger
 
 		if (is_array($email)) {
 			foreach ($email as $k => $v) {
-				if ($k == 0) {
+				if ($k === 0) {
 					continue;
 				}
+
 				$mail->addCc($v);
 			}
 		}
