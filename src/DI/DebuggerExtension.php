@@ -13,6 +13,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		'storeAllError'    => FALSE,
 		'exceptionStorage' => NULL,
 		'blob'             => [],
+		'autoRun'          => [],
 	];
 
 	protected $defaultLogger = [
@@ -28,6 +29,11 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		'blobSettings' => NULL,
 	];
 
+	protected $defaultAutoRun = [
+		'tracyLogger' => TRUE,
+		'blueScreen'  => TRUE,
+	];
+
 	protected $config_cache = NULL;
 
 	protected function createConfig() : array
@@ -39,8 +45,10 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		$config = Nette\DI\Config\Helpers::merge($this->config, $this->default);
 		$config['logger'] = Nette\DI\Config\Helpers::merge($config['logger'], $this->defaultLogger);
 		$config['blob'] = Nette\DI\Config\Helpers::merge($config['blob'], $this->defaultBlob);
+		$config['autoRun'] = Nette\DI\Config\Helpers::merge($config['autoRun'], $this->defaultAutoRun);
 
 		Nette\Utils\Validators::assert($config, 'array');
+		Nette\Utils\Validators::assert($config['autoRun'], 'bool[]');
 
 		$this->config_cache = $config;
 
@@ -76,8 +84,12 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 			]
 		)->addSetup('setStoreError', [$config['storeAllError']]);
 
-		$tracyLogger->addTag('run');
-		$blueScreen->addTag('run');
+		if ($config['autoRun']['tracyLogger']) {
+			$tracyLogger->addTag('run');
+		}
+		if ($config['autoRun']['blueScreen']) {
+			$blueScreen->addTag('run');
+		}
 
 		if ( !is_null($config['exceptionStorage'])) {
 			if ($config['exceptionStorage'] === 'azure') {
