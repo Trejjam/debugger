@@ -76,6 +76,9 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 			]
 		)->addSetup('setStoreError', [$config['storeAllError']]);
 
+		$tracyLogger->addTag('run');
+		$blueScreen->addTag('run');
+
 		if ( !is_null($config['exceptionStorage'])) {
 			if ($config['exceptionStorage'] === 'azure') {
 				$builder->addDefinition($this->prefix('storage'))
