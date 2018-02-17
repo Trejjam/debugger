@@ -16,10 +16,6 @@ class Debugger extends Tracy\Debugger
 	 * @var BlueScreen
 	 */
 	protected static $blueScreen;
-	/**
-	 * @var Trejjam\Utils\Debugger\Storage\Storage
-	 */
-	protected static $storage;
 
 	/**
 	 * @return Logger|Tracy\ILogger
