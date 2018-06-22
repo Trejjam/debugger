@@ -24,9 +24,11 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 	];
 
 	protected $defaultBlob = [
-		'client'       => NULL,
-		'prefix'       => NULL,
-		'blobSettings' => NULL,
+		'client'                          => NULL,
+		'accountName'                     => NULL,
+		'prefix'                          => NULL,
+		'whitelistIp'                     => NULL,
+		'blobSharedAccessSignatureHelper' => NULL,
 	];
 
 	protected $defaultAutoRun = [
@@ -72,10 +74,6 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 					->addSetup('setHost', [$config['logger']['host']])
 					->addSetup('setPath', [$config['logger']['path']]);
 
-		if ( !is_null($config['blob']['blobSettings'])) {
-			$tracyLogger->addSetup('setBlobSettings', [$config['blob']['blobSettings']]);
-		}
-
 		$blueScreen = $builder->getDefinition('tracy.blueScreen');
 		$blueScreen->setFactory(
 			[
@@ -99,18 +97,34 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 						->setArguments(
 							[
 								$config['blob']['client'],
+								$config['blob']['accountName'],
 								$config['blob']['prefix'],
+								$config['blob']['whitelistIp'],
+								$config['blob']['blobSharedAccessSignatureHelper'],
 							]
 						)
 						->setAutowired(FALSE);
 			}
 			else {
 				$builder->addDefinition($this->prefix('storage'))
-						->setFactory($config['exceptionStorage']);
+						->setFactory($config['exceptionStorage'])
+						->setType(Trejjam\Debugger\Exception\IStorage::class)
+						->setAutowired(FALSE);
 			}
 
 			$tracyLogger->addSetup('setLogStorage', [$this->prefix('@storage')]);
 			$blueScreen->addSetup('setLogStorage', [$this->prefix('@storage')]);
 		}
+	}
+
+	public function afterCompile(Nette\PhpGenerator\ClassType $class) : void
+	{
+		$initialize = $class->getMethod('initialize');
+
+		$initialize->addBody(
+			'Trejjam\Debugger\Debugger::$onFatalError[] = function (\Throwable $exception) {'
+			. 'if (Trejjam\Debugger\Debugger::$productionMode === FALSE) Trejjam\Debugger\Debugger::log($exception, self::EXCEPTION);'
+			. '};'
+		);
 	}
 }

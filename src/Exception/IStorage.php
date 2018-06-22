@@ -10,4 +10,6 @@ interface IStorage
 	const HTML_EXT = '.html';
 
 	public function persist(string $localFile) : bool;
+
+	public function getExceptionUrl(string $exceptionFile) : string;
 }

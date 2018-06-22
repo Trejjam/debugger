@@ -61,12 +61,6 @@ class Logger extends Tracy\Logger
 		$this->path = $path;
 	}
 
-	public function setBlobSettings(Azure\Settings $blobSettings)
-	{
-		$this->exceptionUrl = $blobSettings->getBlobEndpointUri();
-		$this->urlPostfix = $blobSettings->getSharedAccessSignature();
-	}
-
 	/**
 	 * @param Exception\IStorage|NULL $storage
 	 */
@@ -184,15 +178,23 @@ class Logger extends Tracy\Logger
 	 */
 	public function defaultMailer($message, $email, string $exceptionFile = NULL, string $priority = NULL)
 	{
+		$exceptionUrl = NULL;
+		if (
+			!is_null($exceptionFile)
+			&& !is_null($this->storage)
+		) {
+			$exceptionUrl = $this->storage->getExceptionUrl($exceptionFile);
+		}
+
 		if ( !is_null($this->host)) {
 			$host = $this->host;
-			$exceptionUrl = $this->exceptionUrl;
-			$urlPostfix = $this->urlPostfix;
 		}
 		else {
 			$host = preg_replace('#[^\w.-]+#', '', isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : php_uname('n'));
-			$exceptionUrl = 'https://' . $host;
-			$urlPostfix = '';
+			$exceptionUrl = Nette\Utils\Strings::replace($exceptionFile, [
+				'~^(.*)exception--~' => 'https://' . $host . $this->path . 'exception--',
+				'~\.html~'           => '.html',
+			]);
 		}
 
 		try {
@@ -223,12 +225,9 @@ class Logger extends Tracy\Logger
 			->setSubject("PHP: An error (" . $this->getTitle($message, $priority) . ") occurred on the server $host")
 			->setHtmlBody($this->formatMessage($message) .
 						  "\n\nsource: " . Tracy\Helpers::getSource() .
-						  (is_null($exceptionFile)
+						  (is_null($exceptionUrl)
 							  ? ''
-							  : "\n\nexception link: " . Nette\Utils\Strings::replace($exceptionFile, [
-								  '~^(.*)exception--~' => $exceptionUrl . $this->path . 'exception--',
-								  '~\.html~'           => '.html' . $urlPostfix,
-							  ])
+							  : "\n\nexception link: " . $exceptionUrl
 						  ));
 
 		if (is_array($email)) {

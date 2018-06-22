@@ -3,27 +3,47 @@ declare(strict_types=1);
 
 namespace Trejjam\Debugger\Exception;
 
+use Mangoweb\Clock\Clock;
 use Nette;
-use GuzzleHttp;
-use MicrosoftAzure;
+use MicrosoftAzure\Storage\Blob;
+use MicrosoftAzure\Storage\Common\Internal\Utilities;
+use MicrosoftAzure\Storage\Common\Internal\Resources;
 
 class Azure implements IStorage
 {
 	/**
-	 * @var MicrosoftAzure\Storage\Blob\Internal\IBlob
+	 * @var Blob\Internal\IBlob
 	 */
-	public $blobClient;
+	private $blobClient;
 	/**
 	 * @var string
 	 */
-	public $blobPrefix;
+	private $accountName;
+	/**
+	 * @var string
+	 */
+	private $blobPrefix;
+	/**
+	 * @var string
+	 */
+	private $whitelistIp;
+	/**
+	 * @var Blob\BlobSharedAccessSignatureHelper
+	 */
+	private $blobSharedAccessSignatureHelper;
 
 	public function __construct(
-		MicrosoftAzure\Storage\Blob\Internal\IBlob $blobClient,
-		string $blobPrefix
+		Blob\Internal\IBlob $blobClient,
+		string $accountName,
+		string $blobPrefix,
+		string $whitelistIp,
+		Blob\BlobSharedAccessSignatureHelper $blobSharedAccessSignatureHelper
 	) {
 		$this->blobClient = $blobClient;
+		$this->accountName = $accountName;
 		$this->blobPrefix = $blobPrefix;
+		$this->whitelistIp = $whitelistIp;
+		$this->blobSharedAccessSignatureHelper = $blobSharedAccessSignatureHelper;
 	}
 
 	public function persist(string $localFile) : bool
@@ -33,7 +53,7 @@ class Azure implements IStorage
 		$this->createContainerIfNotExist($containerName);
 
 		$blobName = basename($localFile);
-		$blockList = new MicrosoftAzure\Storage\Blob\Models\BlockList;
+		$blockList = new Blob\Models\BlockList;
 
 		$blockBlobId = md5_file($localFile) . Nette\Utils\Strings::padLeft(1, 16, '0');
 		$blockList->addLatestEntry($blockBlobId);
@@ -56,11 +76,11 @@ class Azure implements IStorage
 
 	protected function createContainerIfNotExist(string $containerName)
 	{
-		$options = new MicrosoftAzure\Storage\Blob\Models\ListContainersOptions;
+		$options = new Blob\Models\ListContainersOptions;
 		$options->setPrefix($containerName);
 
 		// List containers
-		/** @var MicrosoftAzure\Storage\Blob\Models\ListContainersResult $containers */
+		/** @var Blob\Models\ListContainersResult $containers */
 		$containers = $this->blobClient
 			->listContainersAsync($options)
 			->then(NULL, function (\Exception $reason) {
@@ -92,5 +112,27 @@ class Azure implements IStorage
 		}
 
 		return $this->blobPrefix . '-';
+	}
+
+	public function getExceptionUrl(string $exceptionFile) : string
+	{
+		$start = Clock::now();
+		$expire = Clock::addDays(7);
+
+		$blobName = basename($exceptionFile);
+
+		$resourceName = "{$this->getContainerName()}/{$blobName}";
+
+		$sas = $this->blobSharedAccessSignatureHelper->generateBlobServiceSharedAccessSignatureToken(
+			'b',
+			$resourceName,
+			'r',
+			Utilities::isoDate($expire),
+			Utilities::isoDate($start),
+			$this->whitelistIp,
+			'https'
+		);
+
+		return "https://{$this->accountName}." . Resources::BLOB_BASE_DNS_NAME . "/{$resourceName}?{$sas}";
 	}
 }

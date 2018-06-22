@@ -19,7 +19,8 @@
 		"php": ">=7.1",
 
 		"nette/di": "~2.4",
-		"trejjam/base-extension": "~0.7"
+		"trejjam/base-extension": "~0.7",
+		"mangoweb/clock": "~0.2.0"
 	},
 	"require-dev": {
 		"nette/tester": "@dev"
