@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace Trejjam\Debugger\DI;
 
 use Nette;
-use Trejjam;
+use Trejjam\Debugger\Debugger;
+use Trejjam\Debugger\Exception;
+use Trejjam\Debugger\FatalErrorHook;
 
 class DebuggerExtension extends Nette\DI\CompilerExtension
 {
@@ -14,6 +16,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		'exceptionStorage' => NULL,
 		'blob'             => [],
 		'autoRun'          => [],
+		'logSeverity',
 	];
 
 	protected $defaultLogger = [
@@ -64,9 +67,13 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		$builder = $this->getContainerBuilder();
 		$config = $this->createConfig();
 
+		$builder->addDefinition($this->prefix('fatalErrorHook'))
+				->setFactory(FatalErrorHook::class)
+				->setAutowired(FALSE);
+
 		$tracyLogger = $builder->getDefinition('tracy.logger');
 		$tracyLogger->setFactory([
-									 Trejjam\Debugger\Debugger::class,
+									 Debugger::class,
 									 'getLogger',
 								 ])
 					->addSetup('setEmailClass', [$config['logger']['mailService']])
@@ -77,7 +84,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		$blueScreen = $builder->getDefinition('tracy.blueScreen');
 		$blueScreen->setFactory(
 			[
-				Trejjam\Debugger\Debugger::class,
+				Debugger::class,
 				'getBlueScreen',
 			]
 		)->addSetup('setStoreError', [$config['storeAllError']]);
@@ -92,8 +99,8 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		if ( !is_null($config['exceptionStorage'])) {
 			if ($config['exceptionStorage'] === 'azure') {
 				$builder->addDefinition($this->prefix('storage'))
-						->setFactory(Trejjam\Debugger\Exception\Azure::class)
-						->setType(Trejjam\Debugger\Exception\IStorage::class)
+						->setFactory(Exception\Azure::class)
+						->setType(Exception\IStorage::class)
 						->setArguments(
 							[
 								$config['blob']['client'],
@@ -108,7 +115,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 			else {
 				$builder->addDefinition($this->prefix('storage'))
 						->setFactory($config['exceptionStorage'])
-						->setType(Trejjam\Debugger\Exception\IStorage::class)
+						->setType(Exception\IStorage::class)
 						->setAutowired(FALSE);
 			}
 
@@ -122,9 +129,8 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 		$initialize = $class->getMethod('initialize');
 
 		$initialize->addBody(
-			'Trejjam\Debugger\Debugger::$onFatalError[] = function (\Throwable $exception) {'
-			. 'if (Trejjam\Debugger\Debugger::$productionMode === FALSE) Trejjam\Debugger\Debugger::log($exception, self::EXCEPTION);'
-			. '};'
+			'?::$onFatalError[] = $this->getService(?);',
+			[Debugger::class, $this->prefix('fatalErrorHook')]
 		);
 	}
 }
