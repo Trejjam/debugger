@@ -114,11 +114,11 @@ class Logger extends Tracy\Logger
 	}
 
 	/**
-	 * @param  string                       $message
-	 * @param  string|\Exception|\Throwable $exceptionFile
-	 * @param null                          $priority
+	 * @param string|\Exception|\Throwable $message
+	 * @param string                       $exceptionFile
+	 * @param string|null                  $priority
 	 */
-	public function sendEmail($message, $exceptionFile = NULL, $priority = NULL)
+	public function sendEmail($message, string $exceptionFile = NULL, string $priority = NULL)
 	{
 		$snooze = is_numeric($this->emailSnooze)
 			? $this->emailSnooze
@@ -170,9 +170,9 @@ class Logger extends Tracy\Logger
 	/**
 	 * Default mailer.
 	 *
-	 * @param $message
-	 * @param $email
-	 * @param  string|\Exception|\Throwable
+	 * @param string|\Exception|\Throwable $message
+	 * @param string|array                 $email
+	 * @param string                       $exceptionFile
 	 *
 	 * @internal
 	 */
@@ -245,7 +245,7 @@ class Logger extends Tracy\Logger
 
 	protected function getTitle($message, string $priority)
 	{
-		if ($message instanceof \Exception) {
+		if ($message instanceof \Throwable) {
 			return Tracy\Helpers::getClass($message);
 		}
 		else {
