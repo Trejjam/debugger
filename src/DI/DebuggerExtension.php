@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Trejjam\Debugger\DI;
 
 use Nette;
+use Nette\PhpGenerator\PhpLiteral;
 use Trejjam\Debugger\Debugger;
 use Trejjam\Debugger\Exception;
 use Trejjam\Debugger\FatalErrorHook;
@@ -130,7 +131,7 @@ class DebuggerExtension extends Nette\DI\CompilerExtension
 
 		$initialize->addBody(
 			'?::$onFatalError[] = $this->getService(?);',
-			[Debugger::class, $this->prefix('fatalErrorHook')]
+			[new PhpLiteral(Debugger::class), $this->prefix('fatalErrorHook')]
 		);
 	}
 }
