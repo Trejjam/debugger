@@ -8,6 +8,7 @@ use Nette;
 use MicrosoftAzure\Storage\Blob;
 use MicrosoftAzure\Storage\Common\Internal\Utilities;
 use MicrosoftAzure\Storage\Common\Internal\Resources;
+use Throwable;
 
 class Azure implements IStorage
 {
@@ -66,7 +67,7 @@ class Azure implements IStorage
 		)->then(function () use ($containerName, $blobName, $blockList) {
 			$this->blobClient
 				->commitBlobBlocksAsync($containerName, $blobName, $blockList)
-				->then(NULL, function (\Exception $reason) {
+				->then(NULL, function (Throwable $reason) {
 					throw $reason;
 				})->wait();
 		})->wait();
@@ -83,7 +84,7 @@ class Azure implements IStorage
 		/** @var Blob\Models\ListContainersResult $containers */
 		$containers = $this->blobClient
 			->listContainersAsync($options)
-			->then(NULL, function (\Exception $reason) {
+			->then(NULL, function (Throwable $reason) {
 				throw $reason;
 			})->wait();
 
