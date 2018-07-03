@@ -243,13 +243,13 @@ class Logger extends Tracy\Logger
 		$this->mailerClass->send($mail);
 	}
 
-	protected function getTitle($message, string $priority)
+	protected function getTitle($message, ?string $priority) : string
 	{
 		if ($message instanceof \Throwable) {
 			return Tracy\Helpers::getClass($message);
 		}
 		else {
-			return $priority;
+			return $priority ?? 'not specified';
 		}
 	}
 }
