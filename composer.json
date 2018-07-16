@@ -19,6 +19,7 @@
 		"php": ">=7.1",
 
 		"nette/di": "~2.4",
+		"tracy/tracy": "~2.5",
 		"trejjam/base-extension": "~0.7",
 		"mangoweb/clock": "~0.2.0"
 	},
