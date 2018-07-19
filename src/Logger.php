@@ -208,6 +208,9 @@ class Logger extends Tracy\Logger
 
 		@file_put_contents($this->directory . '/email-sent', Nette\Utils\Json::encode($emailSendJson));
 
+		if ( !is_array($email)) {
+			$email = [$email];
+		}
 		if (count($email) === 0) {
 			return;
 		}
